@@ -4,57 +4,58 @@ using UnityEngine;
 
 public class EnemyManagement : MonoBehaviour
 {
-    private float EnemyDamage;
-    public int nextMove = 0;
+    public float Speed = 0f;
     public int EnemyLife;
+
+    private int destinationX;
+    private float EnemyDamage;
+
     SpriteRenderer sprite;
     Rigidbody2D rigid;
 
     private void Start()
     {
         rigid = GetComponent<Rigidbody2D>();
-        Invoke("Think", 1f);
-
         sprite = GetComponent<SpriteRenderer>();
+        StartCoroutine(Moving(0));
     }
     private void FixedUpdate()
     {
-        rigid.velocity = new Vector2(nextMove, rigid.velocity.y);
+          //flip
+    }
+    IEnumerator Moving(int delayTime)
+    {
+        destinationX = Random.Range(-8, 8);
+        Vector3 destination = new Vector3(destinationX, transform.position.y, 0);
+        float enemySpeed = Speed * Time.deltaTime;
 
-        Vector2 frontVec = new Vector2(rigid.position.x + nextMove * 0.4f, rigid.position.y - 1.8f);
-        Debug.DrawRay(frontVec, Vector3.down, new Color(0, 1, 0));
-        RaycastHit2D raycast = Physics2D.Raycast(frontVec, Vector3.down, 1, LayerMask.GetMask("Platform"));
+        Debug.Log(destinationX);
+        for (; this.transform.position.x < 8 || this.transform.position.x > -8 ; )
+        {
+            rigid.velocity = Vector3.MoveTowards(transform.position, destination, enemySpeed);
+            if (transform.position == destination)
+                break;
+        }
+        
+        yield return new WaitForSeconds(delayTime);
 
-        if (nextMove < 0)
+        delayTime = Random.Range(1, 3);
+        StartCoroutine(Moving(delayTime));
+    }
+
+    private void flip()
+    {
+        if (transform.position.x - destinationX < 0)
         {
             transform.localRotation = Quaternion.Euler(0, 0, 0);
         }
-        else if (nextMove > 0)
+        else if (transform.position.x - destinationX > 0)
         {
             transform.localRotation = Quaternion.Euler(0, 180, 0);
         }
-
-        if (raycast.collider == null)
-        {
-            Debug.Log("∂•ø° ¥Í¿Ω");
-            nextMove *= -1;
-            CancelInvoke();
-            Invoke("Think", 2f);
-            Debug.Log("a");
-        }
     }
-    private void Think()
-    {
-        nextMove = Random.Range(-1, 2);
-        Debug.Log(nextMove);
-
-        float time = Random.Range(2f, 5f);
-        Invoke("Think", time);
-    }
-
     public void SetDamaged(int p_val)
     {
-
         EnemyLife -= p_val;
         if (EnemyLife <= 0)
         {
