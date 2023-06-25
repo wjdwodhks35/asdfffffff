@@ -6,6 +6,7 @@ public class EnemyManagement : MonoBehaviour
 {
     public float Speed = 0f;
     public int EnemyLife;
+    public int nextMove;
 
     private int destinationX;
     private float EnemyDamage;
@@ -17,42 +18,48 @@ public class EnemyManagement : MonoBehaviour
     {
         rigid = GetComponent<Rigidbody2D>();
         sprite = GetComponent<SpriteRenderer>();
-        StartCoroutine(Moving(0));
+        StartCoroutine(changeMovement());
     }
     private void FixedUpdate()
     {
-          //flip
+        Moving();
     }
-    IEnumerator Moving(int delayTime)
+    IEnumerator changeMovement()
     {
-        destinationX = Random.Range(-8, 8);
-        Vector3 destination = new Vector3(destinationX, transform.position.y, 0);
-        float enemySpeed = Speed * Time.deltaTime;
+        int delayTime = Random.Range(1, 3);
+        nextMove = Random.Range(0, 3); // 0 == 정지, 1 == 왼쪽, 2 == 오른쪽
 
-        Debug.Log(destinationX);
-        for (; this.transform.position.x < 8 || this.transform.position.x > -8 ; )
-        {
-            rigid.velocity = Vector3.MoveTowards(transform.position, destination, enemySpeed);
-            if (transform.position == destination)
-                break;
-        }
-        
         yield return new WaitForSeconds(delayTime);
 
-        delayTime = Random.Range(1, 3);
-        StartCoroutine(Moving(delayTime));
+        StartCoroutine(changeMovement());
     }
-
-    private void flip()
+    private void Moving()
     {
-        if (transform.position.x - destinationX < 0)
+        Vector3 moveVelocity = Vector3.zero;
+        float enemySpeed = Speed * Time.deltaTime;
+
+        if (nextMove == 1)
         {
-            transform.localRotation = Quaternion.Euler(0, 0, 0);
+            moveVelocity = Vector3.left;
+            transform.localScale = new Vector3(0.5f, 0.5f, 1);
         }
-        else if (transform.position.x - destinationX > 0)
+        else if (nextMove == 2)
         {
-            transform.localRotation = Quaternion.Euler(0, 180, 0);
+            moveVelocity = Vector3.right;
+            transform.localScale = new Vector3(-0.5f, 0.5f, 1);
         }
+        else
+        {
+            enemySpeed = 0;
+        }
+
+        if(this.transform.position.x > 6.46 || nextMove == 1)
+            enemySpeed = 0;
+        else if(this.transform.position.x < -6.46f || nextMove == 2)
+            enemySpeed = 0;
+
+        transform.position += moveVelocity * enemySpeed;
+
     }
     public void SetDamaged(int p_val)
     {
