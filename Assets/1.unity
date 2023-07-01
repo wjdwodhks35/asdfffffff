@@ -941,17 +941,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: BOSS
       objectReference: {fileID: 0}
+    - target: {fileID: 5631668088045174696, guid: 86859ef93afae1143b00d577225bbf33, type: 3}
+      propertyPath: m_BodyType
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 5631668088045174699, guid: 86859ef93afae1143b00d577225bbf33, type: 3}
       propertyPath: m_RootOrder
       value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 5631668088045174699, guid: 86859ef93afae1143b00d577225bbf33, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.74
+      value: 3.7
       objectReference: {fileID: 0}
     - target: {fileID: 5631668088045174699, guid: 86859ef93afae1143b00d577225bbf33, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.01
+      value: -1.48
       objectReference: {fileID: 0}
     - target: {fileID: 5631668088045174699, guid: 86859ef93afae1143b00d577225bbf33, type: 3}
       propertyPath: m_LocalPosition.z
@@ -989,5 +993,6 @@ PrefabInstance:
       propertyPath: Speed
       value: 5
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5631668088045174696, guid: 86859ef93afae1143b00d577225bbf33, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 86859ef93afae1143b00d577225bbf33, type: 3}

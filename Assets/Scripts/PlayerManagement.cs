@@ -57,7 +57,7 @@ public class PlayerManagement : MonoBehaviour
         if (Life <= 0)
             isLive = false;
         if (isLive == false)
-            anime.SetBool("isLive", false);
+            anime.SetBool("isDeath", true);
         if (hor != 0)
         {
             anime.SetBool("isMoving", true);
@@ -65,10 +65,6 @@ public class PlayerManagement : MonoBehaviour
         else
         {
             anime.SetBool("isMoving", false);
-        }
-        if (isLive == false)
-        {
-            anime.SetBool("isLive", false);
         }
     }
     private void Flip()

@@ -8,15 +8,10 @@ public class EnemyManagement : MonoBehaviour
     public int EnemyLife;
     public int nextMove;
 
-    private int destinationX;
-    private float EnemyDamage;
-
     SpriteRenderer sprite;
-    Rigidbody2D rigid;
 
     private void Start()
     {
-        rigid = GetComponent<Rigidbody2D>();
         sprite = GetComponent<SpriteRenderer>();
         StartCoroutine(changeMovement());
     }
@@ -53,10 +48,12 @@ public class EnemyManagement : MonoBehaviour
             enemySpeed = 0;
         }
 
-        if(this.transform.position.x > 6.46 || nextMove == 1)
-            enemySpeed = 0;
-        else if(this.transform.position.x < -6.46f || nextMove == 2)
-            enemySpeed = 0;
+        //if(this.transform.position.x > 6.46 || nextMove == 1)
+        //    enemySpeed = 0;
+        //else if(this.transform.position.x < -6.46f || nextMove == 2)
+        //    enemySpeed = 0;
+
+        transform.position = new Vector3(Mathf.Clamp(transform.position.x, -6.46f, 6.46f), transform.position.y, transform.position.z);
 
         transform.position += moveVelocity * enemySpeed;
 
