@@ -13,10 +13,8 @@ public class PlayerManagement : MonoBehaviour
     [Header("공격정보")]
     public float delay = 0;
 
-    public bool attackMoving = false;
     float hor;                  // 방향
     bool isJump = false;        // 중복 점프 안되게 하기
-
     bool isLive = true;         // 살아있음 판단
     Animator anime;             // 에니메이션
 
@@ -78,7 +76,7 @@ public class PlayerManagement : MonoBehaviour
     private void FixedUpdate()
     {
         hor = Input.GetAxisRaw("Horizontal");
-        if (attackMoving)
+        if (m_ISAttack)
             MoveSpeed = 0;
         else
             MoveSpeed = 5;
@@ -86,7 +84,7 @@ public class PlayerManagement : MonoBehaviour
     }
     private void Jump()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && !isJump)
+        if (Input.GetKeyDown(KeyCode.Space) && !isJump && m_ISAttack == false)
         {
             isJump = true;
             rigid.velocity = Vector2.up * JumpPower;
@@ -117,23 +115,32 @@ public class PlayerManagement : MonoBehaviour
         {
             anime.SetBool("isMoving", false);
         }
+        if (delay <= 0)
+        {
+            m_ISAttack = false;
+            m_ISNextAttack = false;
+            m_ISReadAttack = false;
+        }
     }
     private void Flip()
     {
-        if (hor < 0)
+        if (m_ISAttack == false)
         {
-            transform.localRotation = Quaternion.Euler(0, 180, 0);
-        }
-        else if (hor > 0)
-        {
-            transform.localRotation = Quaternion.Euler(0, 0, 0);
+            if (hor < 0)
+            {
+                transform.localRotation = Quaternion.Euler(0, 180, 0);
+            }
+            else if (hor > 0)
+            {
+                transform.localRotation = Quaternion.Euler(0, 0, 0);
+            }
         }
     }
 
-    public bool m_ISAttack = false;
-    public bool m_ISNextAttack = false;
+    public bool m_ISAttack = false;         // 현재 공격중인가(첫번째 공격한정)
+    public bool m_ISReadAttack = false;     // 다음연계공격을 할 준비가 되었는가?
+    public bool m_ISNextAttack = false;     // 연계공격 중인가?
 
-    public bool m_ISReadAttack = false;
     private void Attack1()
     {
         if (m_ISReadAttack && Input.GetKeyDown(KeyCode.Mouse0))
@@ -142,12 +149,12 @@ public class PlayerManagement : MonoBehaviour
         }
 
         if (Input.GetKeyDown(KeyCode.Mouse0)
-            && m_ISAttack == false)
+            && m_ISAttack == false && isJump == false
+            && m_ISNextAttack == false)
         {
-            delay += 0.5f;
-            anime.SetBool("isAttack", true);
+            delay = 0.4f;
+            anime.SetBool("firstAttack", true);
             StartCoroutine(AttackCorutine2());
-            attackMoving = true;
         }
     }
 
@@ -156,15 +163,13 @@ public class PlayerManagement : MonoBehaviour
         if (m_ISNextAttack)
         {
             anime.SetBool("comboAttack", true);
-            delay += 10f;
+            delay = 10f;       // 대충 시간 길게 해놔서 애니메이션 적용되게 해놓은 거
         }
-        m_ISNextAttack = false;
-        m_ISReadAttack = false;
     }
     void _On_endAttack()
     {
         delay = 0.2f;
-        StartCoroutine(comboDelay());
+        StartCoroutine(AttackCorutine2());
     }
     void Attack2()
     {
@@ -179,9 +184,17 @@ public class PlayerManagement : MonoBehaviour
     IEnumerator AttackCorutine2()
     {
         m_ISAttack = true;
-
-        yield return new WaitForSecondsRealtime(delay);
-        //float currtime = Time.time + p_actdelay;
+        while (true)
+        {
+            delay -= Time.deltaTime;
+            yield return null;
+            if (delay <= 0)
+            {
+                anime.SetBool("firstAttack", false);
+                anime.SetBool("comboAttack", false);
+                break;
+            }
+        }//float currtime = Time.time + p_actdelay;
         //while (true)
         //{
         //    yield return null;
@@ -191,21 +204,7 @@ public class PlayerManagement : MonoBehaviour
         //        break;
         //    }
         //}
-
-        delay = 0f;
-
-        anime.SetBool("isAttack", false);
-
-        m_ISAttack = false;
-        m_ISNextAttack = false;
-        attackMoving = false;
-
-        yield return null;
-    }
-    IEnumerator comboDelay()
-    {
-        yield return new WaitForSecondsRealtime(delay);
-        anime.SetBool("comboAttack", false);
+        
     }
 
     //IEnumerator DelayTimer(float actDelay)
