@@ -4,17 +4,21 @@ using UnityEngine;
 
 public class PlayerManagement : MonoBehaviour
 {
-    [SerializeField] Rigidbody2D rigid;          // ¸®Áöµå¹Ùµğ
-    [SerializeField] SpriteRenderer sprite;      // ½ºÇÁ¶óÀÌÆ®
+    [SerializeField] Rigidbody2D rigid;
 
-    public float MoveSpeed;     // ¼Óµµ Á¶Àı
-    public float Life;          // Ã¼·Â
-    public float JumpPower;     // Á¡ÇÁ·Â
-    float hor;                  // ¹æÇâ
-    bool isJump = false;        // Áßº¹ Á¡ÇÁ ¾ÈµÇ°Ô ÇÏ±â
+    [Header("ìŠ¤íƒ¯ì •ë³´")]
+    public float MoveSpeed;     // ì†ë„ ì¡°ì ˆ
+    public float PlayerLife;    // ì²´ë ¥
+    public float JumpPower;     // ì í”„ë ¥
+    [Header("ê³µê²©ì •ë³´")]
+    public float delay = 0;
 
-    bool isLive = true;         // »ì¾ÆÀÖÀ½ ÆÇ´Ü
-    Animator anime;             // ¿¡´Ï¸ŞÀÌ¼Ç
+    public bool attackMoving = false;
+    float hor;                  // ë°©í–¥
+    bool isJump = false;        // ì¤‘ë³µ ì í”„ ì•ˆë˜ê²Œ í•˜ê¸°
+
+    bool isLive = true;         // ì‚´ì•„ìˆìŒ íŒë‹¨
+    Animator anime;             // ì—ë‹ˆë©”ì´ì…˜
 
     private void Awake()
     {
@@ -25,13 +29,60 @@ public class PlayerManagement : MonoBehaviour
         Flip();
         Jump();
         UpdataState();
+        Attack1();
     }
+
+
+    public List<GameObject> m_AttackObjList = new List<GameObject>();
+
+
+    //GameObject compareobj = null;
+    //public bool Predicatea(GameObject obj)
+    //{
+    //    if (compareobj == obj)
+    //        return true;
+
+    //    return false;
+    //}
+
+    public void EnterTarget(GameObject p_obj)
+    {
+        //compareobj = p_obj;
+        //GameObject findobk2 = m_AttackObjList.Find(Predicatea);
+
+        GameObject findobk = m_AttackObjList.Find((x) =>
+        {
+            if (x == p_obj)
+            {
+                return true;
+            }
+
+            return false;
+        }); //ëŒë‹¤ì‹
+        if (findobk != null)
+        {
+            return;
+        }
+
+        m_AttackObjList.Add(p_obj);
+        // ê³µê²©ë°ë¯¸ì§€ ì¤˜ë¼
+        PlayerLife--;
+    }
+
+
+    public void EndAttack()
+    {
+        m_AttackObjList.Clear();
+    }
+
     private void FixedUpdate()
     {
         hor = Input.GetAxisRaw("Horizontal");
-
+        if (attackMoving)
+            MoveSpeed = 0;
+        else
+            MoveSpeed = 5;
         rigid.velocity = new Vector2(hor * MoveSpeed, rigid.velocity.y);
-
     }
     private void Jump()
     {
@@ -54,7 +105,7 @@ public class PlayerManagement : MonoBehaviour
     }
     private void UpdataState()
     {
-        if (Life <= 0)
+        if (PlayerLife <= 0)
             isLive = false;
         if (isLive == false)
             anime.SetBool("isDeath", true);
@@ -78,4 +129,105 @@ public class PlayerManagement : MonoBehaviour
             transform.localRotation = Quaternion.Euler(0, 0, 0);
         }
     }
+
+    public bool m_ISAttack = false;
+    public bool m_ISNextAttack = false;
+
+    public bool m_ISReadAttack = false;
+    private void Attack1()
+    {
+        if (m_ISReadAttack && Input.GetKeyDown(KeyCode.Mouse0))
+        {
+            m_ISNextAttack = true;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Mouse0)
+            && m_ISAttack == false)
+        {
+            delay += 0.5f;
+            anime.SetBool("isAttack", true);
+            StartCoroutine(AttackCorutine2());
+            attackMoving = true;
+        }
+    }
+
+    void _On_CompareAttack()
+    {
+        if (m_ISNextAttack)
+        {
+            anime.SetBool("comboAttack", true);
+            delay += 10f;
+        }
+        m_ISNextAttack = false;
+        m_ISReadAttack = false;
+    }
+    void _On_endAttack()
+    {
+        delay = 0.2f;
+        StartCoroutine(comboDelay());
+    }
+    void Attack2()
+    {
+        m_ISReadAttack = true;
+
+        //if (Input.GetKeyDown(KeyCode.Mouse0))
+        //{
+        //    m_ISNextAttack = true;
+        //    anime.SetBool("comboAttack", true);
+        //}
+    }
+    IEnumerator AttackCorutine2()
+    {
+        m_ISAttack = true;
+
+        yield return new WaitForSecondsRealtime(delay);
+        //float currtime = Time.time + p_actdelay;
+        //while (true)
+        //{
+        //    yield return null;
+
+        //    if (currtime <= Time.time)
+        //    {
+        //        break;
+        //    }
+        //}
+
+        delay = 0f;
+
+        anime.SetBool("isAttack", false);
+
+        m_ISAttack = false;
+        m_ISNextAttack = false;
+        attackMoving = false;
+
+        yield return null;
+    }
+    IEnumerator comboDelay()
+    {
+        yield return new WaitForSecondsRealtime(delay);
+        anime.SetBool("comboAttack", false);
+    }
+
+    //IEnumerator DelayTimer(float actDelay)
+    //{
+    //    yield return new WaitForSecondsRealtime(actDelay); // ë”œë ˆì´ë§Œí¼ ê¸°ë‹¤ë¦¬ê¸°
+
+    //    //float currtime = Time.time + actDelay;
+    //    //while(true)
+    //    //{
+    //    //    yield return null;
+
+    //    //    if(currtime <= Time.time)
+    //    //    {
+    //    //        break;
+    //    //    }
+    //    //} yield return new WaitForSecondsRealtime(actDelay); ì´ê±° ë‚´ë¶€ ì½”ë“œì„
+
+    //    if (actDelay == delay)
+    //    {
+    //        transform.Find("AttackVisible").gameObject.SetActive(false);
+    //        anime.SetBool("isAttack", false);
+    //        anime.SetBool("comboAttack", false);
+    //    }
+    //}
 }
