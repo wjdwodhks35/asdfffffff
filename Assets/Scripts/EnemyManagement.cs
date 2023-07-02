@@ -5,7 +5,7 @@ using UnityEngine;
 public class EnemyManagement : MonoBehaviour
 {
     public float Speed = 0f;
-    public int EnemyLife;
+    public int EnemyLife = 10;
     public int nextMove;
 
     SpriteRenderer sprite;
@@ -58,12 +58,23 @@ public class EnemyManagement : MonoBehaviour
         transform.position += moveVelocity * enemySpeed;
 
     }
-    public void SetDamaged(int p_val)
+    int Hit;
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        EnemyLife -= p_val;
+        if (other.gameObject.CompareTag("PlayerAttackRange") && Hit == 0)
+        {
+            EnemyLife--;
+            SetDamaged();
+        }
+        else
+            return;
+    }
+    private void SetDamaged()
+    {
+        Hit++;
         if (EnemyLife <= 0)
         {
-            GameObject.Destroy(gameObject);
+            this.gameObject.SetActive(false);
         }
     }
 }

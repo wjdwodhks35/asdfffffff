@@ -33,7 +33,6 @@ public class PlayerManagement : MonoBehaviour
 
     public List<GameObject> m_AttackObjList = new List<GameObject>();
 
-
     //GameObject compareobj = null;
     //public bool Predicatea(GameObject obj)
     //{
@@ -120,7 +119,10 @@ public class PlayerManagement : MonoBehaviour
             m_ISAttack = false;
             m_ISNextAttack = false;
             m_ISReadAttack = false;
+            transform.Find("AttackRange").gameObject.SetActive(false);
         }
+        else
+            transform.Find("AttackRange").gameObject.SetActive(true);
     }
     private void Flip()
     {
@@ -152,8 +154,10 @@ public class PlayerManagement : MonoBehaviour
             && m_ISAttack == false && isJump == false
             && m_ISNextAttack == false)
         {
-            delay = 0.4f;
+            delay = 0.45f;
             anime.SetBool("firstAttack", true);
+            transform.Find("AttackRange").gameObject.SetActive(true);
+            transform.Find("AttackRange").gameObject.SetActive(false);
             StartCoroutine(AttackCorutine2());
         }
     }
