@@ -199,16 +199,16 @@ public class PlayerManagement : MonoBehaviour
                 break;
             }
         }//float currtime = Time.time + p_actdelay;
-        //while (true)
-        //{
-        //    yield return null;
+         //while (true)
+         //{
+         //    yield return null;
 
         //    if (currtime <= Time.time)
         //    {
         //        break;
         //    }
         //}
-        
+
     }
 
     //IEnumerator DelayTimer(float actDelay)

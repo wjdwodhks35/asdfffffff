@@ -58,7 +58,7 @@ public class EnemyManagement : MonoBehaviour
         transform.position += moveVelocity * enemySpeed;
 
     }
-    int Hit;
+    int Hit = 0;
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.gameObject.CompareTag("PlayerAttackRange") && Hit == 0)
@@ -71,7 +71,6 @@ public class EnemyManagement : MonoBehaviour
     }
     private void SetDamaged()
     {
-        Hit++;
         if (EnemyLife <= 0)
         {
             this.gameObject.SetActive(false);
