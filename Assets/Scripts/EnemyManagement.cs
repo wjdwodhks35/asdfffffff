@@ -9,9 +9,10 @@ public class EnemyManagement : MonoBehaviour
     public int nextMove;
 
     SpriteRenderer sprite;
-
+    Animator anime;
     private void Start()
     {
+        anime = GetComponent<Animator>();
         sprite = GetComponent<SpriteRenderer>();
         StartCoroutine(changeMovement());
     }
@@ -36,12 +37,12 @@ public class EnemyManagement : MonoBehaviour
         if (nextMove == 1)
         {
             moveVelocity = Vector3.left;
-            transform.localScale = new Vector3(0.5f, 0.5f, 1);
+            transform.localScale = new Vector3(1f, 1f, 1);
         }
         else if (nextMove == 2)
         {
             moveVelocity = Vector3.right;
-            transform.localScale = new Vector3(-0.5f, 0.5f, 1);
+            transform.localScale = new Vector3(-1f, 1f, 1);
         }
         else
         {
@@ -59,9 +60,15 @@ public class EnemyManagement : MonoBehaviour
 
     }
     int Hit = 0;
+    public float Atkcool;
+    public float Delay;
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.CompareTag("PlayerAttackRange") && Hit == 0)
+        if (other.CompareTag("Player"))                                     // 공격 하기
+        {
+            StartCoroutine(enemyAtkcool(Atkcool));
+        }
+        if (other.gameObject.CompareTag("PlayerAttackRange") && Hit == 0)   // 공격 받기
         {
             EnemyLife--;
             SetDamaged();
@@ -69,11 +76,17 @@ public class EnemyManagement : MonoBehaviour
         else
             return;
     }
-    private void SetDamaged()
+    private void SetDamaged()       // 공격 받기 함수
     {
         if (EnemyLife <= 0)
         {
             this.gameObject.SetActive(false);
         }
+    }
+    IEnumerator enemyAtkcool(float motionDelay)     // 코루틴으로 공격하기
+    {
+        nextMove = 0;
+        yield return motionDelay;
+        anime.SetBool("EnemyAtk", true);
     }
 }
